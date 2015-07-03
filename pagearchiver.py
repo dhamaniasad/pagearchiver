@@ -34,13 +34,15 @@ def make_links_absolute(soup, url):
 
 
 def download_images(soup):
+    urls = dict()
     for img in soup.findAll('img', src=True):
         img_source = urllib2.urlopen(img['src']).read()
         parse_url = urlparse.urlparse(img['src'])
+        urls[img['src']] = parse_url.path.split('/')[-1]
         folders_to_make = '/'.join(parse_url.path.split('/')[0:-1])
         print folders_to_make
         os.makedirs(folder_path + folders_to_make)
-        f = open(folder_path + parse_url.path, 'r+')
+        f = open(folder_path + parse_url.path, 'wb')
         f.write(img_source)
         f.close()
 

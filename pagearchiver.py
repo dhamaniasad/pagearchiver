@@ -6,6 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from bs4 import BeautifulSoup
 import urlparse
 import urllib2
+import codecs
 
 folder_name = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(8))
 cur_dir = os.curdir
@@ -40,10 +41,19 @@ def download_images(soup):
         parse_url = urlparse.urlparse(img['src'])
         urls[img['src']] = parse_url.path.split('/')[-1]
         folders_to_make = '/'.join(parse_url.path.split('/')[0:-1])
-        print folders_to_make
-        os.makedirs(folder_path + folders_to_make)
+        try:
+            os.makedirs(folder_path + folders_to_make)
+        except OSError:
+            pass
         f = open(folder_path + parse_url.path, 'wb')
         f.write(img_source)
         f.close()
+    for url in urls:
+        imgs = soup.findAll('img', src=url)
+        for img in imgs:
+            img['src'] = urls[url]
+    f = codecs.open(folder_path + '/index.html', 'wb', 'utf-8')
+    f.write(soup.text)
+    f.close()
 
-open_webpage('http://www.google.com')
+open_webpage('http://gizmodo.com/the-fermi-paradox-where-the-hell-are-the-other-earths-1580345495')
